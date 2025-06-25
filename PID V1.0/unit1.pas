@@ -61,10 +61,11 @@ type
   public
 
   end;
-
+//https://www.robotsforroboticists.com/pid-control/
 var
   Form1: TForm1;
   EditOutput:boolean;
+  StopCal:boolean;
 
   dt: double;
   dt_old: LongWord;
@@ -97,6 +98,7 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   EditOutput:=false;
+  StopCal:=false;
 
   kp:=0.7;
   Edit1.Text:=FormatFloat('0.000',kp);
@@ -138,7 +140,7 @@ end;
 
 procedure TForm1.Button1Click(Sender: TObject);
 begin
-  timer1.Enabled:=not timer1.Enabled;
+  StopCal:=not StopCal;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -264,7 +266,7 @@ procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   dt:=(GetTickCount()-dt_old)/1000.00;
   dt_old:=GetTickCount();
-
+  if StopCal then exit;
   Label2.Caption:='setpoint='+ FormatFloat('0.0',setpoint); //FloatToStr(setpoint);
   Label9.Caption:='kp='; //+FormatFloat('0.000',kp); //FloatToStr(kp);
   Label10.Caption:='ki='; //+FormatFloat('0.000',ki); //FloatToStr(ki);

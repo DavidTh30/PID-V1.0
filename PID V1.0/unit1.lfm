@@ -160,7 +160,7 @@ object Form1: TForm1
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 1
     Text = '0.7'
     OnEditingDone = Edit1EditingDone
   end
@@ -169,7 +169,7 @@ object Form1: TForm1
     Height = 23
     Top = 122
     Width = 70
-    TabOrder = 4
+    TabOrder = 2
     Text = '0.2'
     OnEditingDone = Edit2EditingDone
   end
@@ -178,7 +178,7 @@ object Form1: TForm1
     Height = 23
     Top = 146
     Width = 70
-    TabOrder = 5
+    TabOrder = 3
     Text = '0.001'
     OnEditingDone = Edit3EditingDone
   end
