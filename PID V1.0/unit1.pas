@@ -206,6 +206,7 @@ begin
       if setpoint < 0.0 then setpoint:=0.0;
       Edit4.Text:=FormatFloat('0.0',setpoint);
       setpoint:=StrToFloat(Edit4.Text);
+      Label2.Caption:='setpoint='+ FormatFloat('0.0',setpoint);
     end
   else
     Edit4.Text:=FormatFloat('0.0',setpoint);
@@ -222,6 +223,7 @@ begin
       if output < -100.0 then output:= -100.0;
       Edit5.Text:=FormatFloat('0.00000',output);
       output:=StrToFloat(Edit5.Text);
+      Label4.Caption:='output='+FormatFloat('0.00000',output);
     end
   else
     Edit5.Text:=FormatFloat('0.00000',output);

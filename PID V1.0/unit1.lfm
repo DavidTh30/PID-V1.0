@@ -3,7 +3,7 @@ object Form1: TForm1
   Height = 425
   Top = 145
   Width = 706
-  Caption = 'PID Simulation V1.0'
+  Caption = 'PID Simulation V1.1'
   ClientHeight = 425
   ClientWidth = 706
   OnCreate = FormCreate
