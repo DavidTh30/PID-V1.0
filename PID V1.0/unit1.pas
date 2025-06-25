@@ -349,6 +349,7 @@ end;
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   dt:=(GetTickCount-dt_old)/1000.00;
+  dt:=0.109;  //Fix bug  GetTickCount
   dt_old:=GetTickCount;
   if StopCal then exit;
   Label2.Caption:='setpoint='+ FormatFloat('0.0',setpoint); //FloatToStr(setpoint);
