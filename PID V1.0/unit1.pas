@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ECProgressBar, NumberEdit, math;
+  Menus, TASources, TAGraph, ECProgressBar, NumberEdit, math, TASeries,
+  TAChartUtils;
 
 type
 
@@ -15,6 +16,11 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    ChartForceManual: TChart;
+    ChartForceManualLineSeries5: TLineSeries;
+    ChartMenu: TPopupMenu;
+    ChartRefreshMenu: TMenuItem;
+    ChartZoomOutMenu: TMenuItem;
     ECProgressBar1: TECProgressBar;
     ECProgressBar2: TECProgressBar;
     ECProgressBar3: TECProgressBar;
@@ -38,10 +44,24 @@ type
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
+    ListChartSource5: TListChartSource;
+    SavePara: TMenuItem;
+    Splitter1: TSplitter;
+    SSC: TMenuItem;
     Timer1: TTimer;
     Timer2: TTimer;
+    Timer3: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure ChartForceManualClick(Sender: TObject);
+    procedure ChartForceManualDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure ChartForceManualMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure ChartForceManualMouseEnter(Sender: TObject);
+    procedure ChartForceManualMouseLeave(Sender: TObject);
+    procedure ChartRefreshMenuClick(Sender: TObject);
+    procedure ChartZoomOutMenuClick(Sender: TObject);
     procedure Edit1EditingDone(Sender: TObject);
     procedure Edit2EditingDone(Sender: TObject);
     procedure Edit3EditingDone(Sender: TObject);
@@ -56,6 +76,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
+    procedure Timer3Timer(Sender: TObject);
   private
 
   public
@@ -66,6 +87,10 @@ var
   Form1: TForm1;
   EditOutput:boolean;
   StopCal:boolean;
+  ChartSimulate:boolean;
+
+  Chart_Enter:boolean;
+  Chatr_Zoom:integer;
 
   dt: double;
   dt_old: LongWord;
@@ -97,8 +122,14 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
+
+  Chart_Enter:=false;
+  ChartForceManual.Tag :=1;
+  Chatr_Zoom:=0;
+
   EditOutput:=false;
   StopCal:=false;
+  ChartSimulate:=false;
 
   kp:=0.7;
   Edit1.Text:=FormatFloat('0.000',kp);
@@ -165,6 +196,57 @@ begin
 
   Timer1.Enabled:=true;
   Timer2.Enabled:=true;
+end;
+
+procedure TForm1.ChartForceManualClick(Sender: TObject);
+begin
+  ChartForceManual.Tag :=1;
+end;
+
+procedure TForm1.ChartForceManualDragOver(Sender, Source: TObject; X,
+  Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  ChartForceManual.Tag :=1;
+end;
+
+procedure TForm1.ChartForceManualMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  ChartForceManual.Tag :=1;
+end;
+
+procedure TForm1.ChartForceManualMouseEnter(Sender: TObject);
+begin
+  Chart_Enter:=true;
+end;
+
+procedure TForm1.ChartForceManualMouseLeave(Sender: TObject);
+begin
+  Chart_Enter:=true;
+end;
+
+procedure TForm1.ChartRefreshMenuClick(Sender: TObject);
+begin
+  ChartForceManual.Tag:=0;
+  Chatr_Zoom:=0;
+end;
+
+procedure TForm1.ChartZoomOutMenuClick(Sender: TObject);
+var
+  AC: TDoublePoint;
+  AZ: TDoubleRect;
+begin
+  ChartForceManual.Tag:=1;
+  AC:=ChartForceManual.LogicalExtent.a;
+  AC.X:=AC.X-2;
+  AC.Y:=AC.Y-2;
+  AZ.a:=AC;
+  AC:=ChartForceManual.LogicalExtent.b;
+  AC.X:=AC.X+2;
+  AC.Y:=AC.Y+2;
+  AZ.b:=AC;
+  ChartForceManual.LogicalExtent:=AZ;
+  Chatr_Zoom:=Chatr_Zoom-5;
 end;
 
 procedure TForm1.Edit2EditingDone(Sender: TObject);
@@ -266,8 +348,8 @@ end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
-  dt:=(GetTickCount()-dt_old)/1000.00;
-  dt_old:=GetTickCount();
+  dt:=(GetTickCount-dt_old)/1000.00;
+  dt_old:=GetTickCount;
   if StopCal then exit;
   Label2.Caption:='setpoint='+ FormatFloat('0.0',setpoint); //FloatToStr(setpoint);
   Label9.Caption:='kp='; //+FormatFloat('0.000',kp); //FloatToStr(kp);
@@ -323,6 +405,80 @@ begin
     Label4.Caption:='output='+FormatFloat('0.00000',output);
     if not EditOutput then Edit5.Caption:=FormatFloat('0.00000',output);
   end;
+end;
+
+procedure TForm1.Timer3Timer(Sender: TObject);
+var
+  i:integer;
+  MaxRecordTime:integer;
+  Txt:String;
+  Ra:Double;
+
+begin
+   Randomize();
+
+  MaxRecordTime:=60*60*12;
+  if ListChartSource5.Count >= MaxRecordTime then
+  begin
+    for i:=0 to MaxRecordTime-2 do
+    begin
+      //ListChartSource1.Item[i]^.Y:=ListChartSource1.Item[i+1]^.Y;
+      //ListChartSource1.Item[i]^.Text:=ListChartSource1.Item[i+1]^.Text;
+
+      //ListChartSource4.Item[i]^.Y:=ListChartSource4.Item[i+1]^.Y;
+      //ListChartSource4.Item[i]^.Text:=ListChartSource4.Item[i+1]^.Text;
+
+      ListChartSource5.Item[i]^.Y:=ListChartSource5.Item[i+1]^.Y;
+      ListChartSource5.Item[i]^.Text:=ListChartSource5.Item[i+1]^.Text;
+
+    end;
+    //ListChartSource1.Delete(MaxRecordTime-1);
+    //ListChartSource4.Delete(MaxRecordTime-1);
+    ListChartSource5.Delete(MaxRecordTime-1);
+  end;
+
+
+  Txt:=FormatDateTime('hh',  Now)+':'+FormatDateTime('nn',  Now)+':'+FormatDateTime('ss',  Now);
+
+
+  Ra:= input;
+  if ChartSimulate then Ra:= Int(Random(1*1000));
+  //if ChartForceManual.Extent.YMax<Ra then ChartForceManual.Extent.YMax:=Ra+1;
+  //if ChartForceManual.Extent.YMin>Ra then ChartForceManual.Extent.YMin:=Ra-1;
+  if ChartForceManual.Extent.YMax < Ra+2 then
+    begin
+      ChartForceManual.Extent.YMax := Ra+2;
+      ChartForceManual.ExtentSizeLimit.YMax:= Ra+2; ;
+    end;
+    if ChartForceManual.Extent.YMin > Ra-1 then
+    begin
+      ChartForceManual.Extent.YMin := Ra-1;
+      ChartForceManual.ExtentSizeLimit.YMin:= Ra-1; ;
+    end;
+  if ListChartSource5.Count < MaxRecordTime then ListChartSource5.Add(ListChartSource5.Count,Ra,Txt,clRed);
+
+If (ListChartSource5.Count>240) and (ChartForceManual.Tag = 0) then
+  begin
+    ChartForceManual.BottomAxis.Range.Max:=ListChartSource5.Count;
+    //ChartForceManual.BottomAxis.Range.UseMax:=True;
+    ChartForceManual.BottomAxis.Range.Min:=ListChartSource5.Count-240;
+    //ChartForceManual.BottomAxis.Range.UseMin:=True;
+    ChartForceManual.Extent.XMin:=ListChartSource5.Count-240;  ChartForceManual.Extent.XMax:=ListChartSource5.Count;
+  end;
+  If (ListChartSource5.Count<=240) and (ChartForceManual.Tag = 0) then
+  begin
+    if(ListChartSource5.Count<=60)then
+    ChartForceManual.BottomAxis.Range.Max:=60;
+    if(ListChartSource5.Count>60)then
+    ChartForceManual.BottomAxis.Range.Max:=ListChartSource5.Count;
+    ChartForceManual.BottomAxis.Range.Min:=0;
+    ChartForceManual.Extent.XMin:=0;
+    if(ListChartSource5.Count<=60)then
+    ChartForceManual.Extent.XMax:=60;
+    if(ListChartSource5.Count>60)then
+    ChartForceManual.Extent.XMax:=ListChartSource5.Count;
+  end;
+
 end;
 
 end.

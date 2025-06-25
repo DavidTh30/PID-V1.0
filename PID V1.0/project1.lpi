@@ -97,6 +97,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="TAChartLazarusPkg"/>
+      </Item>
+      <Item>
         <PackageName Value="rhspack"/>
       </Item>
       <Item>
