@@ -3,11 +3,13 @@ object Form1: TForm1
   Height = 565
   Top = 212
   Width = 843
-  Caption = 'PID Simulation V1.2'
+  Caption = 'PID Simulation V1.3'
   ClientHeight = 565
   ClientWidth = 843
   OnCreate = FormCreate
+  PopupMenu = ChartMenu
   LCLVersion = '3.4.0.0'
+  Scaled = False
   object Label1: TLabel
     Left = 8
     Height = 15
@@ -375,6 +377,37 @@ object Form1: TForm1
     Anchors = [akTop, akLeft, akRight]
     ResizeAnchor = akBottom
   end
+  object Memo1: TMemo
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Side = asrBottom
+    Left = 552
+    Height = 24
+    Top = 192
+    Width = 270
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Top = 7
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 12
+    Visible = False
+  end
+  object Label16: TLabel
+    Left = 544
+    Height = 60
+    Top = 48
+    Width = 283
+    Caption = 'error = desired_value – actual_value'#13#10'integral = integral_prior + error * iteration_time'#13#10'derivative = (error – error_prior) / iteration_time'#13#10'output = KP*error + KI*integral + KD*derivative + bias'
+  end
+  object Button3: TButton
+    Left = 544
+    Height = 44
+    Top = 112
+    Width = 120
+    Caption = 'Valve questions'
+    TabOrder = 13
+    OnClick = Button3Click
+  end
   object Timer1: TTimer
     Interval = 100
     OnTimer = Timer1Timer
@@ -389,13 +422,11 @@ object Form1: TForm1
   end
   object Timer3: TTimer
     OnTimer = Timer3Timer
-    Left = 637
-    Top = 30
+    Left = 656
   end
   object ChartMenu: TPopupMenu
     ImagesWidth = 10
     Left = 720
-    Top = 16
     object ChartZoomOutMenu: TMenuItem
       Caption = 'ZoomOut'
       OnClick = ChartZoomOutMenuClick
@@ -406,9 +437,15 @@ object Form1: TForm1
     end
     object SSC: TMenuItem
       Caption = 'Save Screen Capture'
+      OnClick = SSCClick
     end
     object SavePara: TMenuItem
       Caption = 'Save parameter'
+      OnClick = SaveParaClick
+    end
+    object OpenSaveFolder: TMenuItem
+      Caption = 'Open Save Folder'
+      OnClick = OpenSaveFolderClick
     end
   end
 end

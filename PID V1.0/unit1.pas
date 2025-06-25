@@ -7,7 +7,9 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
   Menus, TASources, TAGraph, ECProgressBar, NumberEdit, math, TASeries,
-  TAChartUtils;
+  TAChartUtils, windows, LazUTF8, unit2;
+
+function DwmGetWindowAttribute(hwnd: HWND; dwAttribute: DWORD; pvAttribute: PVOID; cbAttribute: DWORD): HRESULT; stdcall; external 'dwmapi.dll';
 
 type
 
@@ -16,6 +18,7 @@ type
   TForm1 = class(TForm)
     Button1: TButton;
     Button2: TButton;
+    Button3: TButton;
     ChartForceManual: TChart;
     ChartForceManualLineSeries5: TLineSeries;
     ChartMenu: TPopupMenu;
@@ -36,6 +39,7 @@ type
     Label13: TLabel;
     Label14: TLabel;
     Label15: TLabel;
+    Label16: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -45,6 +49,8 @@ type
     Label8: TLabel;
     Label9: TLabel;
     ListChartSource5: TListChartSource;
+    Memo1: TMemo;
+    OpenSaveFolder: TMenuItem;
     SavePara: TMenuItem;
     Splitter1: TSplitter;
     SSC: TMenuItem;
@@ -53,6 +59,7 @@ type
     Timer3: TTimer;
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure ChartForceManualClick(Sender: TObject);
     procedure ChartForceManualDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
@@ -74,13 +81,17 @@ type
     procedure Edit5MouseEnter(Sender: TObject);
     procedure Edit5MouseLeave(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure OpenSaveFolderClick(Sender: TObject);
+    procedure SaveParaClick(Sender: TObject);
+    procedure SSCClick(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure Timer3Timer(Sender: TObject);
   private
 
   public
-
+    function get_ss_of(window: hwnd; var bmp: graphics.TBitmap): integer;
+    Function CheckDirectory(C_DNAME: string;Debug_:TMemo):boolean;
   end;
 //https://www.robotsforroboticists.com/pid-control/
 var
@@ -88,6 +99,8 @@ var
   EditOutput:boolean;
   StopCal:boolean;
   ChartSimulate:boolean;
+  Directory_:string;
+  FileName_:string;
 
   Chart_Enter:boolean;
   Chatr_Zoom:integer;
@@ -119,12 +132,55 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
+Function TForm1.CheckDirectory(C_DNAME: string;Debug_:TMemo):boolean; //True=Error
+var
+  tfOut: TextFile;
+begin
+  result:= false;
+
+  if(C_DNAME<>'')then
+  if Not DirectoryExists(C_DNAME) Then
+  begin
+    {$I-}
+    //{$I-} or {$IOCHECKS OFF}
+    //{$I-} rewrite (f); {$I+}
+    //if IOResult<>0 then begin Writeln ('Error opening file: "file.txt"'); exit; end;
+    mkdir(C_DNAME);
+    {$I+}
+    if IOResult<>0 then
+    begin
+      Debug_.Append('Directory '+C_DNAME+' error occurred. Details: '+ EInOutError.ClassName);
+      ShowMessage('Cannot create '+C_DNAME+' directory. Details: '+ EInOutError.ClassName);
+      result:= true;
+    end;
+  end;
+
+end;
+
+function TForm1.get_ss_of(window: hwnd; var bmp: graphics.TBitmap): integer;
+var
+  outer: TRect;
+  dc: HDC;
+begin
+  result := 0; // 0 = success
+  if not IsWindow(window) then exit(1);
+  if not (DwmGetWindowAttribute(window, 9{DWMWA_EXTENDED_FRAME_BOUNDS}, @outer, sizeof(outer)) = S_OK) then exit(2);
+  bmp.Width := outer.Width;
+  bmp.Height := outer.Height;
+  bmp.PixelFormat := pf24bit;
+  dc := GetDC(GetDesktopWindow);
+  bmp.BeginUpdate(true);
+  if not BitBlt(bmp.Canvas.Handle, 0, 0, outer.Width, outer.Height, dc, outer.Left, outer.Top, SRCCOPY) then result := 3;
+  bmp.EndUpdate(true);
+  bmp.Canvas.Changed;
+  ReleaseDC(GetDesktopWindow, dc);
+end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 
   Chart_Enter:=false;
-  ChartForceManual.Tag :=1;
+  ChartForceManual.Tag :=0;
   Chatr_Zoom:=0;
 
   EditOutput:=false;
@@ -150,6 +206,119 @@ begin
   Randomize;
   RandomHardware:=4.0+(Random(35)/10);
   RandomStableLost:=2.0+Random(30);
+end;
+
+procedure TForm1.OpenSaveFolderClick(Sender: TObject);
+begin
+  //Directory_
+  //FileName_
+  //SysUtils.ExecuteProcess(UTF8ToSys('explorer.exe'), '/select,C:\Windows\explorer.exe', []);
+  SysUtils.ExecuteProcess(UTF8ToSys('explorer.exe'), '/select,'+FormatDateTime('MM YYYY',Now), []);
+end;
+
+procedure TForm1.SaveParaClick(Sender: TObject);
+var
+  i:integer;
+  //MaxRecordTime:integer;
+  //Txt:String;
+  fileout : TextFile;
+  S_Name:string;
+  File_OK:Boolean;
+
+begin
+
+  if (FormatDateTime('MM YYYY',Now)<>Directory_) then
+  begin
+    Directory_:=FormatDateTime('MM YYYY',Now); FileName_:= Directory_+'\'+FormatDateTime('DD MM YYYY hh nn ss',Now)+'.CSV';
+  end;
+  if CheckDirectory(Directory_,Memo1) then begin showmessage('Unable to save file'); Exit; end;
+
+  S_Name:=Directory_+'\'+FormatDateTime('DD MM YYYY hh nn ss',Now)+'.CSV';
+  i:=0;
+  File_OK:=True;
+
+  try
+    AssignFile(fileout, S_Name);
+  except
+    on E: EInOutError do
+    begin
+      //showmessage('AssignFile: '+E.ClassName+'/'+ E.Message+'/'+IntToStr(E.ErrorCode));
+      File_OK:=False;
+    end;
+  end;
+
+  //if File_OK then showmessage('File_OK=OK');
+  //if not File_OK then showmessage('File_OK=not OK');
+  //Timer3.Enabled:=False;
+
+  while((File_OK = False) and (i<100)) do
+  begin
+    i:=i+1;
+    S_Name:=Directory_+'\'+FormatDateTime('DD MM YYYY hh nn ss',Now)+'_'+IntToStr(i)+'.CSV';
+    File_OK:=True;
+    try
+      AssignFile(fileout, S_Name);
+    except
+      on E: EInOutError do
+      begin
+        //showmessage('AssignFile: '+E.ClassName+'/'+ E.Message+'/'+IntToStr(E.ErrorCode));
+        File_OK:=False;
+      end;
+    end;
+  end;
+
+   try
+     Append(fileout);
+   except
+     //on E: EInOutError do
+     //showmessage('Append: '+E.ClassName+'/'+ E.Message+'/'+IntToStr(E.ErrorCode));
+     on E: EInOutError do
+     try
+       rewrite (fileout);
+       writeln(fileout, 'TimeStamp='+FormatDateTime('DD MM YYYY hh nn ss',Now)+',-,-,-,-');
+       writeln(fileout, 'kp='+FormatFloat('0.000',kp)+',-,-,-,-');
+       writeln(fileout, 'ki='+FormatFloat('0.000',ki)+',-,-,-,-');
+       writeln(fileout, 'kd='+FormatFloat('0.000',kd)+',-,-,-,-');
+       writeln(fileout, 'setpoint='+FormatFloat('0.0',setpoint)+',-,-,-,-');
+       writeln(fileout, 'output='+FormatFloat('0.00000',output)+',-,-,-,-');
+     except
+       //on E: EInOutError do
+       //showmessage('Append: '+E.ClassName+'/'+ E.Message+'/'+IntToStr(E.ErrorCode));
+     end;
+   end;
+
+   CloseFile(fileout);
+end;
+
+procedure TForm1.SSCClick(Sender: TObject);
+var
+  bmp: graphics.TBitmap;
+  i:integer;
+begin
+  if (FormatDateTime('MM YYYY',Now)<>Directory_) then
+  begin
+    Directory_:=FormatDateTime('MM YYYY',Now); FileName_:= Directory_+'\'+FormatDateTime('DD MM YYYY hh nn ss',Now)+'.bmp';
+  end;
+  if CheckDirectory(Directory_,Memo1) then begin showmessage('Unable to save file'); Exit; end;
+
+  try
+    bmp := graphics.TBitmap.Create;
+    for i:=1 to 1000 do
+    begin
+      Application.ProcessMessages
+    end;
+    if get_ss_of(Form1.Handle, bmp) = 0 then
+    begin
+      // display on TImage
+      //image1.Picture.Assign(bmp);
+      // or save to file
+      FileName_:= Directory_+'\'+FormatDateTime('DD MM YYYY hh nn ss',Now)+'.bmp';
+      bmp.SaveToFile(FileName_);
+    end;
+  finally
+    bmp.Free;
+  end;
+  //ScreenshotToFile('123.bmp',0);
 end;
 
 procedure TForm1.Edit1EditingDone(Sender: TObject);
@@ -196,6 +365,11 @@ begin
 
   Timer1.Enabled:=true;
   Timer2.Enabled:=true;
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  Form2.Show;
 end;
 
 procedure TForm1.ChartForceManualClick(Sender: TObject);
@@ -361,7 +535,7 @@ begin
 
   Label1.Caption:='dt='+FormatFloat('0.000s.',dt); //FloatToStr(dt);
 
-  Label3.Caption:='input='+FormatFloat('0.0',input); //FloatToStr(input);
+  Label3.Caption:='input(Actual)='+FormatFloat('0.0',input); //FloatToStr(input);
   Label5.Caption:='error_='+FormatFloat('0.000',error_); //FloatToStr(error_);
 
   Label6.Caption:='proportional='+FormatFloat('0.000',proportional); //FloatToStr(proportional);
@@ -385,6 +559,13 @@ begin
   if output > 100.0 then output:=100.0;
   if output < -100.0 then output:=-100.0;
 
+  if Form2.Active then
+  begin
+    Form2.Label20.Caption:=FormatFloat('0.000',error_)+'='+FormatFloat('0.0',setpoint)+'-'+FormatFloat('0.0',input);
+    Form2.Label21.Caption:=FormatFloat('0.000',integral)+'='+FormatFloat('0.000',integral)+'+'+FormatFloat('0.000',error_)+'*'+FormatFloat('0.000s.',dt);
+    Form2.Label22.Caption:=FormatFloat('0.000s.',dt)+'=('+IntToStr(GetTickCount)+'-'+IntToStr(dt_old)+')/'+FormatFloat('0.000ms.',1000.00);
+    Form2.Label23.Caption:=FormatFloat('0.00000',output)+'=('+FormatFloat('0.000',kp)+'*'+FormatFloat('0.000',error_)+')+('+FormatFloat('0.000',ki)+'*'+FormatFloat('0.000',integral)+')+('+FormatFloat('0.000',kd)+'*'+FormatFloat('0.000s.',dt)+')+0';
+  end;
 end;
 
 procedure TForm1.Timer2Timer(Sender: TObject);
