@@ -1,0 +1,451 @@
+object Form1: TForm1
+  Left = 534
+  Height = 565
+  Top = 154
+  Width = 843
+  Caption = 'PID Simulator V1.4'
+  ClientHeight = 565
+  ClientWidth = 843
+  OnCreate = FormCreate
+  PopupMenu = ChartMenu
+  LCLVersion = '3.4.0.0'
+  Scaled = False
+  object Label1: TLabel
+    Left = 8
+    Height = 15
+    Top = 8
+    Width = 19
+    Caption = 'dt='
+  end
+  object Label2: TLabel
+    Left = 144
+    Height = 21
+    Top = 8
+    Width = 67
+    Caption = 'setpoint='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 144
+    Height = 21
+    Top = 32
+    Width = 100
+    Caption = 'input(Actual)='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 144
+    Height = 21
+    Top = 56
+    Width = 57
+    Caption = 'output='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -16
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label5: TLabel
+    Left = 8
+    Height = 15
+    Top = 24
+    Width = 38
+    Caption = 'error_='
+  end
+  object Label6: TLabel
+    Left = 8
+    Height = 15
+    Top = 40
+    Width = 74
+    Caption = 'proportional='
+  end
+  object Label7: TLabel
+    Left = 8
+    Height = 15
+    Top = 56
+    Width = 48
+    Caption = 'integral='
+  end
+  object Label8: TLabel
+    Left = 8
+    Height = 15
+    Top = 72
+    Width = 59
+    Caption = 'derivative='
+  end
+  object Label9: TLabel
+    Left = 8
+    Height = 17
+    Top = 104
+    Width = 23
+    Caption = 'kp='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label10: TLabel
+    Left = 8
+    Height = 17
+    Top = 128
+    Width = 18
+    Caption = 'ki='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label11: TLabel
+    Left = 8
+    Height = 17
+    Top = 152
+    Width = 23
+    Caption = 'kd='
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object ECProgressBar1: TECProgressBar
+    AnchorSideTop.Control = Owner
+    AnchorSideBottom.Control = Splitter1
+    Left = 300
+    Height = 224
+    Top = 0
+    Width = 75
+    Anchors = [akTop, akLeft, akBottom]
+    Caption = 'Setpoint'
+    GrooveStyle = eosButton
+    Orientation = eooVertical
+    ProgressDigits = 1
+    ProgressFontOptions.FontStyles = [fsBold]
+    Reversed = True
+    Scale.Max = 100
+    Scale.TickLongValue = 10
+    Scale.TickMiddleValue = 5
+    Scale.TickShortValue = 1
+    ScaleFontOptions.FontSize = 7
+    Style = eosFinePanel
+  end
+  object Label12: TLabel
+    Left = 552
+    Height = 15
+    Top = 8
+    Width = 104
+    Caption = 'RandomHardware='
+  end
+  object Label13: TLabel
+    Left = 552
+    Height = 15
+    Top = 24
+    Width = 107
+    Caption = 'RandomStableLost='
+  end
+  object Edit1: TEdit
+    Left = 48
+    Height = 23
+    Top = 98
+    Width = 70
+    Font.CharSet = ANSI_CHARSET
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    TabOrder = 1
+    Text = '0.7'
+    OnEditingDone = Edit1EditingDone
+  end
+  object Edit2: TEdit
+    Left = 48
+    Height = 23
+    Top = 122
+    Width = 70
+    TabOrder = 2
+    Text = '0.2'
+    OnEditingDone = Edit2EditingDone
+  end
+  object Edit3: TEdit
+    Left = 48
+    Height = 23
+    Top = 146
+    Width = 70
+    TabOrder = 3
+    Text = '0.001'
+    OnEditingDone = Edit3EditingDone
+  end
+  object Button1: TButton
+    Left = 8
+    Height = 44
+    Top = 176
+    Width = 113
+    Caption = 'Stop/Start PID'
+    TabOrder = 6
+    OnClick = Button1Click
+  end
+  object ECProgressBar3: TECProgressBar
+    AnchorSideTop.Control = Owner
+    AnchorSideBottom.Control = Splitter1
+    Left = 376
+    Height = 224
+    Top = 0
+    Width = 79
+    Anchors = [akTop, akLeft, akBottom]
+    Caption = 'Output'
+    GrooveStyle = eosButton
+    Orientation = eooVertical
+    ParentShowHint = False
+    ProgressDigits = 3
+    ProgressFontOptions.FontStyles = [fsBold]
+    ProgressFromMiddle = True
+    ProgressTextStyle = eptSolid
+    Reversed = True
+    Scale.Max = 100
+    Scale.Min = -100
+    Scale.TickLongValue = 20
+    Scale.TickMiddleValue = 5
+    Scale.TickShortValue = 2
+    ScaleFontOptions.FontSize = 7
+    Style = eosFinePanel
+  end
+  object ECProgressBar2: TECProgressBar
+    AnchorSideTop.Control = Owner
+    AnchorSideBottom.Control = Splitter1
+    Left = 456
+    Height = 224
+    Top = 0
+    Width = 75
+    Anchors = [akTop, akLeft, akBottom]
+    Caption = 'Actual'
+    GrooveStyle = eosButton
+    Orientation = eooVertical
+    ProgressDigits = 1
+    ProgressFontOptions.FontStyles = [fsBold]
+    Reversed = True
+    Scale.Max = 100
+    Scale.TickLongValue = 10
+    Scale.TickMiddleValue = 5
+    Scale.TickShortValue = 1
+    ScaleFontOptions.FontSize = 7
+    Style = eosFinePanel
+  end
+  object Label14: TLabel
+    Left = 128
+    Height = 17
+    Top = 104
+    Width = 51
+    Caption = 'Setpoint:'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Edit4: TEdit
+    Left = 224
+    Height = 23
+    Top = 98
+    Width = 70
+    Font.CharSet = ANSI_CHARSET
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    TabOrder = 7
+    Text = '0.0'
+    OnEditingDone = Edit4EditingDone
+  end
+  object Edit5: TEdit
+    Left = 224
+    Height = 23
+    Top = 122
+    Width = 70
+    Font.CharSet = ANSI_CHARSET
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    TabOrder = 8
+    Text = '0.0'
+    OnEditingDone = Edit5EditingDone
+    OnEnter = Edit5Enter
+    OnKeyPress = Edit5KeyPress
+    OnMouseDown = Edit5MouseDown
+    OnMouseEnter = Edit5MouseEnter
+    OnMouseLeave = Edit5MouseLeave
+  end
+  object Label15: TLabel
+    Left = 128
+    Height = 17
+    Top = 128
+    Width = 90
+    Caption = 'Manual Output:'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Button2: TButton
+    Left = 128
+    Height = 44
+    Top = 176
+    Width = 113
+    Caption = 'Restart all'
+    TabOrder = 9
+    OnClick = Button2Click
+  end
+  object ChartForceManual: TChart
+    AnchorSideLeft.Control = Owner
+    AnchorSideTop.Control = Splitter1
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 0
+    Height = 337
+    Top = 228
+    Width = 843
+    AxisList = <    
+      item
+        Marks.LabelBrush.Style = bsClear
+        Minors = <>
+        Title.LabelFont.Orientation = 900
+        Title.LabelBrush.Style = bsClear
+      end    
+      item
+        Grid.Visible = False
+        Alignment = calBottom
+        Marks.LabelFont.Orientation = 900
+        Marks.Format = '%2:s'
+        Marks.LabelBrush.Style = bsClear
+        Marks.OverlapPolicy = opHideNeighbour
+        Marks.Source = ListChartSource5
+        Marks.Style = smsLabel
+        Minors = <>
+        Range.Max = 60
+        Range.UseMax = True
+        Range.UseMin = True
+        Title.Caption = 'Time Date'
+        Title.LabelBrush.Style = bsClear
+      end>
+    Extent.UseYMax = True
+    Extent.UseYMin = True
+    Extent.YMax = 100
+    Foot.Brush.Color = clBtnFace
+    Foot.Font.Color = clBlue
+    Foot.Frame.Visible = True
+    Foot.Shape = clsUserDefined
+    Title.Brush.Color = clBtnFace
+    Title.Font.Color = clBlue
+    Title.Text.Strings = (
+      'TAChart'
+    )
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    PopupMenu = ChartMenu
+    OnClick = ChartForceManualClick
+    OnDragOver = ChartForceManualDragOver
+    OnMouseDown = ChartForceManualMouseDown
+    OnMouseEnter = ChartForceManualMouseEnter
+    OnMouseLeave = ChartForceManualMouseLeave
+    object ChartForceManualLineSeries5: TLineSeries
+      AxisIndexX = 1
+      AxisIndexY = 0
+      LinePen.Color = clRed
+      LinePen.Width = 2
+      Source = ListChartSource5
+    end
+  end
+  object Splitter1: TSplitter
+    AnchorSideLeft.Control = Owner
+    AnchorSideRight.Control = Owner
+    AnchorSideRight.Side = asrBottom
+    Cursor = crVSplit
+    Left = 0
+    Height = 4
+    Top = 224
+    Width = 843
+    Align = alNone
+    Anchors = [akTop, akLeft, akRight]
+    ResizeAnchor = akBottom
+  end
+  object Memo1: TMemo
+    AnchorSideTop.Side = asrBottom
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Side = asrBottom
+    Left = 552
+    Height = 24
+    Top = 192
+    Width = 270
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    BorderSpacing.Top = 7
+    ReadOnly = True
+    ScrollBars = ssAutoBoth
+    TabOrder = 12
+    Visible = False
+  end
+  object Label16: TLabel
+    Left = 544
+    Height = 60
+    Top = 48
+    Width = 283
+    Caption = 'error = desired_value – actual_value'#13#10'integral = integral_prior + error * iteration_time'#13#10'derivative = (error – error_prior) / iteration_time'#13#10'output = KP*error + KI*integral + KD*derivative + bias'
+  end
+  object Button3: TButton
+    Left = 544
+    Height = 44
+    Top = 112
+    Width = 120
+    Caption = 'Valve questions'
+    TabOrder = 13
+    OnClick = Button3Click
+  end
+  object Timer1: TTimer
+    Interval = 100
+    OnTimer = Timer1Timer
+    Left = 56
+  end
+  object Timer2: TTimer
+    OnTimer = Timer2Timer
+    Left = 96
+  end
+  object ListChartSource5: TListChartSource
+    Left = 216
+  end
+  object Timer3: TTimer
+    OnTimer = Timer3Timer
+    Left = 656
+  end
+  object ChartMenu: TPopupMenu
+    ImagesWidth = 10
+    Left = 720
+    object ChartZoomOutMenu: TMenuItem
+      Caption = 'ZoomOut'
+      OnClick = ChartZoomOutMenuClick
+    end
+    object ChartRefreshMenu: TMenuItem
+      Caption = 'Refresh'
+      OnClick = ChartRefreshMenuClick
+    end
+    object SSC: TMenuItem
+      Caption = 'Save Screen Capture'
+      OnClick = SSCClick
+    end
+    object SavePara: TMenuItem
+      Caption = 'Save parameter'
+      OnClick = SaveParaClick
+    end
+    object OpenSaveFolder: TMenuItem
+      Caption = 'Open Save Folder'
+      OnClick = OpenSaveFolderClick
+    end
+  end
+end
