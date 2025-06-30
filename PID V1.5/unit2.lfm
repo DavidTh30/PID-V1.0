@@ -1,0 +1,110 @@
+object Form2: TForm2
+  Left = 1204
+  Height = 187
+  Top = 147
+  Width = 538
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Equations value'
+  ClientHeight = 187
+  ClientWidth = 538
+  Position = poDesktopCenter
+  LCLVersion = '3.4.0.0'
+  Scaled = False
+  object Label16: TLabel
+    Left = 8
+    Height = 17
+    Top = 8
+    Width = 210
+    Caption = 'error = desired_value – actual_value'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label17: TLabel
+    Left = 8
+    Height = 17
+    Top = 48
+    Width = 277
+    Caption = 'integral = integral_prior + error * iteration_time'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label18: TLabel
+    Left = 8
+    Height = 17
+    Top = 88
+    Width = 281
+    Caption = 'derivative = (error – error_prior) / iteration_time'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label19: TLabel
+    Left = 8
+    Height = 17
+    Top = 128
+    Width = 318
+    Caption = 'output = KP*error + KI*integral + KD*derivative + bias'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label20: TLabel
+    Left = 8
+    Height = 17
+    Top = 24
+    Width = 210
+    Caption = 'error = desired_value – actual_value'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label21: TLabel
+    Left = 8
+    Height = 17
+    Top = 64
+    Width = 277
+    Caption = 'integral = integral_prior + error * iteration_time'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label22: TLabel
+    Left = 8
+    Height = 17
+    Top = 104
+    Width = 281
+    Caption = 'derivative = (error – error_prior) / iteration_time'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+  object Label23: TLabel
+    Left = 8
+    Height = 17
+    Top = 144
+    Width = 318
+    Caption = 'output = KP*error + KI*integral + KD*derivative + bias'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -13
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+  end
+end
